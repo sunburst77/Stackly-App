@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stackly — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50:  "#fff0f8",
+                100: "#ffd1ec",
+                300: "#ff66c4",
+                500: "#ff1fa8",
+                600: "#ff0099",
+                700: "#e00087"
+              }
+            },
+            fontFamily: {
+              mono: ['"IBM Plex Mono"', 'monospace']
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      :root {
+        /* Same lightness as zinc-900; hue shifted toward brand pink (fallback ≈ matched L) */
+        --card-surface: #1a1619;
+      }
+      @supports (background-color: color-mix(in oklab, white, black)) {
+        :root {
+          --card-surface: color-mix(in oklab, #18181b 91%, #ff0099 9%);
+        }
+      }
+      .bg-card-surface {
+        background-color: var(--card-surface);
+      }
+      * {
+        font-family: 'IBM Plex Mono', monospace;
+        letter-spacing: -0.03em;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ===== Wave reveal ===== */
+      .wave-item {
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 450ms ease, transform 450ms ease;
+        transition-delay: calc(var(--i, 0) * 60ms);
+      }
+      body.wave-active .wave-item {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* ===== Endless wave: top → bottom float pass ===== */
+      /*
+       * Total cycle = 5s. Each item lifts during a small slice of the cycle
+       * (its own delay), then rests until the next sweep starts again.
+       */
+      body.wave-active .wave-item {
+        animation: wave-float 5s ease-in-out infinite;
+        animation-delay: calc(0.8s + var(--i, 0) * 110ms);
+      }
+      @keyframes wave-float {
+        0%,  100% { transform: translateY(0); }
+        4%        { transform: translateY(-7px); }
+        10%       { transform: translateY(0); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .wave-item,
+        body.wave-active .wave-item {
+          animation: none !important;
+          transition: none !important;
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="wave-active overflow-hidden select-none bg-zinc-950 pb-[72px]">
+
+    <!-- Status bar: dark only, no brand strip -->
+    <div class="wave-item flex items-center justify-between bg-zinc-950 px-4 pb-2 pt-3" style="--i:0">
+      <span class="text-[11px] font-semibold text-zinc-400">9:41</span>
+      <div class="flex items-center gap-1">
+        <i class="ri-wifi-fill text-sm text-zinc-400"></i>
+        <i class="ri-battery-2-fill text-sm text-zinc-400"></i>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="wave-item bg-zinc-950 px-4 pb-3" style="--i:1">
+      <div class="mb-3 flex items-center justify-between">
+        <div>
+          <p class="text-xs text-zinc-500">Team workspace</p>
+          <h1 class="text-base font-bold leading-tight text-white">Today's productivity</h1>
+        </div>
+        <div class="relative">
+          <img
+            src="https://api.dicebear.com/7.x/thumbs/svg?seed=Stackly"
+            alt=""
+            class="h-9 w-9 rounded-full bg-zinc-800"
+          />
+          <span class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 rounded-xl bg-card-surface px-3 py-2">
+        <i class="ri-search-line flex-shrink-0 text-sm text-zinc-500"></i>
+        <span class="text-xs text-zinc-500">Search projects, people…</span>
+      </div>
+    </header>
+
+    <!-- Charts: donut + weekly bars -->
+    <section class="mx-3 mt-1 grid grid-cols-2 gap-2">
+      <!-- Donut: sprint completion -->
+      <div class="wave-item rounded-2xl bg-brand-600 p-3" style="--i:2">
+        <p class="mb-2 text-[10px] font-semibold text-black/60">Sprint progress</p>
+        <div class="flex items-center gap-2">
+          <div class="relative h-[72px] w-[72px] flex-shrink-0">
+            <svg class="h-[72px] w-[72px] -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.5" fill="none" class="stroke-black/25" stroke-width="3" />
+              <circle
+                cx="18"
+                cy="18"
+                r="15.5"
+                fill="none"
+                stroke="currentColor"
+                class="text-black"
+                stroke-width="3"
+                stroke-dasharray="97.4"
+                stroke-dashoffset="29"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-lg font-bold leading-none text-black">68%</span>
+              <span class="text-[9px] text-black/55">of goal</span>
+            </span>
+          </div>
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="flex items-center gap-1.5">
+              <span class="h-1.5 w-1.5 rounded-full bg-black"></span>
+              <span class="truncate text-[10px] text-black/75">In progress 24</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-700"></span>
+              <span class="truncate text-[10px] text-black/75">Done 51</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="h-1.5 w-1.5 rounded-full bg-black/55"></span>
+              <span class="truncate text-[10px] text-black/75">Queued 12</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar chart: weekly activity -->
+      <div class="wave-item rounded-2xl bg-card-surface p-3" style="--i:3">
+        <p class="mb-2 text-[10px] font-semibold text-zinc-500">This week</p>
+        <div class="flex h-[72px] items-end justify-between gap-1 px-0.5">
+          <div class="flex w-full flex-col items-center gap-1">
+            <div class="h-[38%] w-full max-w-[14px] rounded-sm bg-brand-500/40"></div>
+            <span class="text-[8px] text-zinc-600">M</span>
+          </div>
+          <div class="flex w-full flex-col items-center gap-1">
+            <div class="h-[55%] w-full max-w-[14px] rounded-sm bg-brand-500/60"></div>
+            <span class="text-[8px] text-zinc-600">T</span>
+          </div>
+          <div class="flex w-full flex-col items-center gap-1">
+            <div class="h-[72%] w-full max-w-[14px] rounded-sm bg-brand-500"></div>
+            <span class="text-[8px] text-zinc-600">W</span>
+          </div>
+          <div class="flex w-full flex-col items-center gap-1">
+            <div class="h-[48%] w-full max-w-[14px] rounded-sm bg-brand-500/50"></div>
+            <span class="text-[8px] text-zinc-600">T</span>
+          </div>
+          <div class="flex w-full flex-col items-center gap-1">
+            <div class="h-[62%] w-full max-w-[14px] rounded-sm bg-brand-500/70"></div>
+            <span class="text-[8px] text-zinc-600">F</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collaboration -->
+    <section class="wave-item mx-3 mt-3 rounded-2xl bg-card-surface p-3" style="--i:4">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-xs font-bold text-white">Team online</h2>
+        <span class="text-[10px] font-semibold text-brand-300">7 online</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex -space-x-2">
+          <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=A" class="h-8 w-8 rounded-full bg-brand-100 ring-2 ring-[var(--card-surface)]" alt="" />
+          <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=B" class="h-8 w-8 rounded-full bg-brand-300 ring-2 ring-[var(--card-surface)]" alt="" />
+          <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=C" class="h-8 w-8 rounded-full bg-brand-500 ring-2 ring-[var(--card-surface)]" alt="" />
+          <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=D" class="h-8 w-8 rounded-full bg-brand-700 ring-2 ring-[var(--card-surface)]" alt="" />
+          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-semibold text-zinc-400 ring-2 ring-[var(--card-surface)]">+3</span>
+        </div>
+        <div class="flex items-center gap-1 rounded-lg bg-emerald-400/15 px-2 py-1">
+          <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400"></span>
+          <span class="text-[10px] font-semibold text-emerald-400">Live sync</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mini trend line -->
+    <section class="wave-item mx-3 mt-3 rounded-2xl bg-card-surface p-3" style="--i:5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-xs font-bold text-white">Response time</h2>
+        <span class="text-[10px] text-zinc-500">Last 14 days</span>
+      </div>
+      <svg class="h-12 w-full text-brand-300" viewBox="0 0 200 48" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="currentColor" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path
+          fill="url(#g)"
+          d="M0 40 L20 32 L40 36 L60 22 L80 28 L100 18 L120 24 L140 14 L160 20 L180 10 L200 16 L200 48 L0 48 Z"
+        />
+        <path
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M0 40 L20 32 L40 36 L60 22 L80 28 L100 18 L120 24 L140 14 L160 20 L180 10 L200 16"
+        />
+      </svg>
+      <div class="mt-1 flex justify-between text-[9px] text-zinc-600">
+        <span>Avg 1.2h</span>
+        <span class="text-emerald-400/90">↓ 18% better</span>
+      </div>
+    </section>
+
+    <!-- Active projects -->
+    <section class="mt-3 px-3">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-xs font-bold text-white">Active projects</h2>
+        <span class="text-[10px] font-semibold text-brand-300">See all</span>
+      </div>
+
+      <article class="wave-item mb-2 rounded-2xl bg-card-surface p-3" style="--i:6">
+        <div class="mb-3 flex items-start justify-between">
+          <div>
+            <span class="rounded-full bg-brand-500/20 px-2 py-0.5 text-[9px] font-semibold text-brand-300">UX/UI</span>
+            <h3 class="mt-1.5 text-sm font-bold leading-tight text-white">App landing redesign</h3>
+          </div>
+          <div class="flex -space-x-1.5">
+            <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=P1" class="h-5 w-5 rounded-full bg-zinc-700" alt="" />
+            <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=P2" class="h-5 w-5 rounded-full bg-zinc-700" alt="" />
+          </div>
+        </div>
+        <div class="mb-1.5 h-1.5 rounded-full bg-zinc-800">
+          <div class="h-1.5 w-[72%] rounded-full bg-brand-500"></div>
+        </div>
+        <div class="flex items-center justify-between text-[10px] text-zinc-500">
+          <span>72% done</span>
+          <span>Due in 5d</span>
+        </div>
+      </article>
+
+      <article class="wave-item rounded-2xl bg-card-surface p-3" style="--i:7">
+        <div class="mb-3 flex items-start justify-between">
+          <div>
+            <span class="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[9px] font-semibold text-emerald-400">Dev</span>
+            <h3 class="mt-1.5 text-sm font-bold leading-tight text-white">API integration sprint</h3>
+          </div>
+          <img src="https://api.dicebear.com/7.x/thumbs/svg?seed=P3" class="h-5 w-5 rounded-full bg-zinc-700" alt="" />
+        </div>
+        <div class="mb-1.5 h-1.5 rounded-full bg-zinc-800">
+          <div class="h-1.5 w-[45%] rounded-full bg-emerald-400"></div>
+        </div>
+        <div class="flex items-center justify-between text-[10px] text-zinc-500">
+          <span>45% done</span>
+          <span>Due in 12d</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- Today's tasks -->
+    <section class="mt-3 px-3 pb-2">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-xs font-bold text-white">Today's tasks</h2>
+        <span class="text-[10px] font-semibold text-brand-300">+ Add</span>
+      </div>
+      <div class="wave-item divide-y divide-zinc-800 rounded-2xl bg-card-surface" style="--i:8">
+        <div class="flex items-center gap-3 px-3 py-2.5">
+          <div class="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-brand-500/20">
+            <span class="h-2 w-2 rounded-full bg-brand-500"></span>
+          </div>
+          <p class="flex-1 text-xs text-zinc-300">Apply wireframe feedback</p>
+          <span class="text-[10px] text-zinc-600">10:00</span>
+        </div>
+        <div class="flex items-center gap-3 px-3 py-2.5">
+          <div class="h-4 w-4 flex-shrink-0 rounded-full bg-zinc-800"></div>
+          <p class="flex-1 text-xs text-zinc-300">Team standup</p>
+          <span class="text-[10px] text-zinc-600">14:00</span>
+        </div>
+        <div class="flex items-center gap-3 px-3 py-2.5">
+          <div class="h-4 w-4 flex-shrink-0 rounded-full bg-zinc-800"></div>
+          <p class="flex-1 text-xs text-zinc-500 line-through">Document design system</p>
+          <i class="ri-checkbox-circle-fill text-base text-emerald-400"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Nav -->
+    <nav class="wave-item fixed bottom-0 left-0 right-0 flex items-center justify-around bg-zinc-950 px-2 pb-4 pt-2" style="--i:9">
+      <button type="button" class="flex flex-col items-center gap-0.5 px-3">
+        <i class="ri-home-5-fill text-xl text-brand-500"></i>
+        <span class="text-[9px] font-semibold text-brand-500">Home</span>
+      </button>
+      <button type="button" class="flex flex-col items-center gap-0.5 px-3">
+        <i class="ri-layout-grid-fill text-xl text-zinc-600"></i>
+        <span class="text-[9px] text-zinc-600">Board</span>
+      </button>
+      <button type="button" class="flex flex-col items-center gap-0.5 px-3">
+        <span class="-mt-5 flex h-9 w-9 items-center justify-center rounded-full bg-brand-600">
+          <i class="ri-add-line text-xl text-black"></i>
+        </span>
+        <span class="mt-0.5 text-[9px] text-zinc-600">New task</span>
+      </button>
+      <button type="button" class="flex flex-col items-center gap-0.5 px-3">
+        <i class="ri-bar-chart-box-line text-xl text-zinc-600"></i>
+        <span class="text-[9px] text-zinc-600">Insights</span>
+      </button>
+      <button type="button" class="flex flex-col items-center gap-0.5 px-3">
+        <i class="ri-user-3-line text-xl text-zinc-600"></i>
+        <span class="text-[9px] text-zinc-600">Profile</span>
+      </button>
+    </nav>
+
+  </body>
+</html>

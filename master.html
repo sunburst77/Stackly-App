@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Banner Cards</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50:  "#fff0f8",
+                100: "#ffd1ec",
+                300: "#ff66c4",
+                500: "#ff1fa8",
+                600: "#ff0099",
+                700: "#e00087"
+              }
+            },
+            fontFamily: {
+              mono: ['"IBM Plex Mono"', 'monospace']
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      * { font-family: 'IBM Plex Mono', monospace; letter-spacing: -0.03em; -webkit-font-smoothing: antialiased; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-black p-6 md:p-10">
+    <main class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+
+      <!-- 1) Pink Solid Banner -->
+      <section class="relative overflow-hidden rounded-3xl min-h-[380px] bg-brand-600">
+
+        <!-- Two-column layout -->
+        <div class="relative z-10 flex items-center justify-between gap-8 p-8 md:p-12">
+
+          <!-- Left: Text content -->
+          <div class="flex-1 text-black min-w-0">
+            <span class="inline-flex items-center gap-1.5 rounded-lg bg-black px-3 py-1 text-xs font-semibold text-white">
+              <i class="ri-sparkling-2-fill text-sm"></i>
+              NEW FEATURE
+            </span>
+            <h2 class="mt-4 text-2xl font-bold leading-tight md:text-4xl">
+              Build your app landing page<br class="hidden md:block" />
+              in under 10 minutes.
+            </h2>
+            <p class="mt-4 text-sm text-black/75 md:text-base">
+              Get started fast with intuitive components and ready-made templates.
+              Swap colors and copy — your polished landing page is done.
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <button
+                class="rounded-lg bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-900"
+                type="button"
+              >
+                Get started free
+              </button>
+              <button
+                class="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-white/85"
+                type="button"
+              >
+                View demo
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Mobile mockup -->
+          <div class="hidden md:flex flex-shrink-0 items-end justify-center self-end">
+            <div class="relative" style="width:220px; height:440px;">
+              <!-- Phone body -->
+              <div class="absolute inset-0 rounded-[36px] bg-zinc-800"></div>
+              <!-- Side buttons -->
+              <div class="absolute -left-[3px] top-24 w-[3px] h-8 rounded-l-full bg-zinc-700"></div>
+              <div class="absolute -left-[3px] top-36 w-[3px] h-12 rounded-l-full bg-zinc-700"></div>
+              <div class="absolute -right-[3px] top-28 w-[3px] h-16 rounded-r-full bg-zinc-700"></div>
+              <!-- Screen -->
+              <div class="absolute inset-[6px] rounded-[30px] overflow-hidden bg-zinc-950">
+                <!-- Embedded app -->
+                <iframe
+                  src="app.html"
+                  title="App Preview"
+                  class="w-full h-full"
+                  scrolling="no"
+                ></iframe>
+              </div>
+              <!-- Home bar -->
+              <div class="absolute bottom-[10px] left-1/2 -translate-x-1/2 w-20 h-1 bg-white/20 rounded-full"></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 2) Dark Solid Banner -->
+      <section class="relative overflow-hidden rounded-3xl bg-[#3a2b36] p-8 md:p-12">
+        <div class="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-500/10 blur-3xl"></div>
+        <div class="absolute -bottom-24 right-10 h-48 w-48 rounded-full bg-brand-600/10 blur-3xl"></div>
+        <div class="relative z-10">
+          <span class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500/20 px-3 py-1 text-xs font-semibold text-brand-300">
+            <i class="ri-award-fill text-sm"></i>
+            BEST CHOICE
+          </span>
+          <h2 class="mt-4 text-2xl font-bold leading-tight text-white md:text-4xl">
+            Move faster with your team.<br class="hidden md:block" />
+            Ship things that matter.
+          </h2>
+          <p class="mt-4 max-w-2xl text-sm text-white/50 md:text-base">
+            Manage schedules, collaborate, and report — all in one workspace.
+            Connect only what you need and watch your productivity soar.
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button
+              class="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600"
+              type="button"
+            >
+              Start your plan
+            </button>
+            <button
+              class="rounded-lg bg-brand-300/20 px-5 py-2.5 text-sm font-semibold text-brand-100 transition hover:bg-brand-300/30 hover:text-white"
+              type="button"
+            >
+              View pricing
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </body>
+</html>

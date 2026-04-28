@@ -1,0 +1,1731 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stackly — Ship things that matter</title>
+    <meta name="description" content="Stackly는 작업, 프로젝트, 팀 커뮤니케이션을 하나로 묶어 빠르게 실행하도록 돕는 앱입니다." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Stackly — Ship things that matter" />
+    <meta property="og:description" content="Stackly는 작업, 프로젝트, 팀 커뮤니케이션을 하나로 묶어 빠르게 실행하도록 돕는 앱입니다." />
+    <meta property="og:site_name" content="Stackly" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://sunburst77.github.io/Stackly-App/" />
+    <meta property="og:image" content="https://sunburst77.github.io/Stackly-App/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Stackly 앱 랜딩페이지 미리보기 이미지" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Stackly — Ship things that matter" />
+    <meta name="twitter:description" content="Stackly는 작업, 프로젝트, 팀 커뮤니케이션을 하나로 묶어 빠르게 실행하도록 돕는 앱입니다." />
+    <meta name="twitter:image" content="https://sunburst77.github.io/Stackly-App/og-image.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50:  "#fff0f8",
+                100: "#ffd1ec",
+                300: "#ff66c4",
+                500: "#ff1fa8",
+                600: "#ff0099",
+                700: "#e00087"
+              }
+            },
+            fontFamily: {
+              mono: ['"IBM Plex Mono"', 'monospace']
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      * { font-family: 'IBM Plex Mono', monospace; letter-spacing: -0.03em; -webkit-font-smoothing: antialiased; }
+
+      /* 상단바: 최상단 = 단색 블랙, 스크롤 후 = 위 블랙 → 아래 투명 */
+      #site-header {
+        background-color: #000;
+        background-image: none;
+        padding-bottom: 0.625rem;
+        transition: background 0.35s ease, background-color 0.35s ease,
+          padding-bottom 0.35s ease;
+      }
+
+      @media (min-width: 768px) {
+        #site-header {
+          padding-bottom: 0.75rem;
+        }
+      }
+
+      /* 스크롤 후 그라데이션은 아래로 페이드 영역 확보 */
+      #site-header.is-scrolled {
+        padding-bottom: 2rem;
+        background-color: transparent;
+        background-image: linear-gradient(
+          180deg,
+          #000 0%,
+          #000 10%,
+          rgba(0, 0, 0, 0.85) 55%,
+          transparent 100%
+        );
+      }
+
+      @media (min-width: 768px) {
+        #site-header.is-scrolled {
+          padding-bottom: 2.5rem;
+        }
+      }
+
+      /* ===== 인트로(로딩) 순차 등장 — border 없이 opacity/transform만 ===== */
+      /* 모든 등장은 동일한 ease-out 곡선으로 통일하고, duration이 step보다 길게
+         겹치도록 해서 끊김 없이 이어지게 함 */
+      #site-header.reveal-intro {
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      #site-header.reveal-intro.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      #hero-section.reveal-intro {
+        opacity: 0;
+        transform: translateY(22px);
+        transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      #hero-section.reveal-intro.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .hero-intro-el {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .hero-intro-el.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* 히어로 임베드(폰 목업): Y축 틸트 + 아래에서 위로 */
+      .hero-mockup-wrap {
+        perspective: 1400px;
+        perspective-origin: 50% 40%;
+      }
+      .hero-mockup {
+        transform-origin: 50% 60%;
+        transform-style: preserve-3d;
+        will-change: transform, opacity;
+      }
+      .hero-mockup.is-pre {
+        opacity: 0;
+        transform: translate3d(0, 80px, 0) rotateY(-26deg);
+        transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .hero-mockup.is-pre.is-visible {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) rotateY(0deg);
+      }
+
+      .feature-intro-el {
+        opacity: 0;
+        transform: translateY(22px);
+        transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .feature-intro-el.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .scroll-reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .scroll-reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #site-header.reveal-intro,
+        #hero-section.reveal-intro,
+        .hero-intro-el,
+        .hero-mockup.is-pre,
+        .feature-intro-el,
+        .scroll-reveal {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+        .blog-skeleton-item .animate-pulse {
+          animation: none !important;
+          opacity: 0.5;
+        }
+      }
+
+      /* 버튼: 호버 시 반전 색이 아래에서 위로 채워짐 (::after, 보더 없음) */
+      .btn-fill-up {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        transition: color 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .btn-fill-up::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        border-radius: inherit;
+        background: var(--btn-fill-bg, #000);
+        transform: translateY(101%);
+        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .btn-fill-up:hover::after,
+      .btn-fill-up:focus-visible::after {
+        transform: translateY(0);
+      }
+      .btn-fill-up > * {
+        position: relative;
+        z-index: 1;
+      }
+      .btn-fill-up--brand {
+        --btn-fill-bg: #000000;
+      }
+      .btn-fill-up--dark {
+        --btn-fill-bg: #ffffff;
+      }
+      .btn-fill-up--light {
+        --btn-fill-bg: #000000;
+      }
+      .btn-fill-up--icon-brand {
+        --btn-fill-bg: #ff0099;
+      }
+      .btn-fill-up--icon-light {
+        --btn-fill-bg: #fafafa;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .btn-fill-up::after {
+          transition: none;
+        }
+        .btn-fill-up {
+          transition: color 0.15s ease;
+        }
+      }
+
+      /* 히어로: 모바일 80% 뷰포트 · PC(md+) 고정 560px */
+      #hero-section {
+        height: auto;
+        min-height: 80vh;
+        min-height: 80dvh;
+      }
+      @media (min-width: 768px) {
+        #hero-section {
+          min-height: unset;
+          height: 560px;
+        }
+      }
+      /* 모바일: 히어로 높이 고정 + 넘치는 목업 잘림 */
+      @media (max-width: 767px) {
+        #hero-section {
+          display: flex;
+          flex-direction: column;
+          height: 80vh;
+          height: 80dvh;
+          min-height: 80vh;
+          min-height: 80dvh;
+        }
+        #hero-section > div {
+          flex: 1 1 auto;
+          min-height: 0;
+          overflow: hidden;
+        }
+        .hero-mockup-wrap {
+          flex: 1 1 auto;
+          min-height: 0;
+          align-self: stretch;
+        }
+      }
+
+      /* ===== 스플래시 인트로 ===== */
+      #splash-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+        opacity: 1;
+        transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      #splash-overlay.is-fading {
+        opacity: 0;
+      }
+      #splash-overlay.is-done {
+        display: none;
+      }
+
+      .splash-logo-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 22px;
+        transform-origin: 0 0;
+        will-change: transform;
+        transition: transform 1.15s cubic-bezier(0.65, 0, 0.35, 1);
+      }
+
+      .splash-square {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 90px;
+        height: 90px;
+        border-radius: 22px;
+        background: #ff0099;
+        opacity: 0;
+        transform: scale(0.6);
+        transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .splash-square.is-in {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .splash-stack {
+        width: 64px;
+        height: 64px;
+        overflow: visible;
+      }
+      .splash-stack-layer {
+        fill: #000;
+        stroke: #ff0099;
+        stroke-width: 0.9;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        opacity: 0;
+        transform: translateY(3px);
+        filter: blur(1.8px);
+        transform-box: fill-box;
+        transform-origin: center;
+        transition: opacity 0.62s cubic-bezier(0.19, 1, 0.22, 1),
+          transform 0.7s cubic-bezier(0.19, 1, 0.22, 1),
+          filter 0.62s cubic-bezier(0.19, 1, 0.22, 1);
+      }
+      .splash-stack-layer.is-in {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+
+      .splash-text {
+        display: inline-flex;
+        font-size: 38px;
+        font-weight: 700;
+        line-height: 1;
+        color: #fff;
+        letter-spacing: -0.03em;
+      }
+      .splash-text > span {
+        display: inline-block;
+        opacity: 0;
+        transform: translateX(-12px);
+        filter: blur(2px);
+        transition: opacity 0.52s cubic-bezier(0.19, 1, 0.22, 1),
+          transform 0.58s cubic-bezier(0.19, 1, 0.22, 1),
+          filter 0.52s cubic-bezier(0.19, 1, 0.22, 1);
+      }
+      .splash-text > span.is-in {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #splash-overlay {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-black px-6 pb-6 pt-0 md:px-10 md:pb-10 md:pt-0">
+
+    <!-- 0) Splash Intro Overlay -->
+    <div id="splash-overlay" aria-hidden="true">
+      <div class="splash-logo-wrap">
+        <span class="splash-square">
+          <svg
+            class="splash-stack"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path class="splash-stack-layer" data-order="1" d="M12 10 L18.4 13.9 L12 17.8 L5.6 13.9 Z" />
+            <path class="splash-stack-layer" data-order="2" d="M12 8.1 L18.4 12 L12 15.9 L5.6 12 Z" />
+            <path class="splash-stack-layer" data-order="3" d="M12 6.2 L18.4 10.1 L12 14 L5.6 10.1 Z" />
+          </svg>
+        </span>
+        <span class="splash-text" aria-label="Stackly">
+          <span>S</span><span>t</span><span>a</span><span>c</span><span>k</span><span>l</span><span>y</span>
+        </span>
+      </div>
+    </div>
+
+    <main class="mx-auto flex w-full max-w-6xl flex-col">
+
+      <!-- 1) Top Navigation -->
+      <header
+        id="site-header"
+        class="reveal-intro sticky top-0 z-50 flex w-full items-center justify-between px-0 pt-2.5 md:px-0 md:pt-3.5"
+      >
+        <a href="#" class="flex items-center gap-0 md:gap-2.5">
+          <span class="hidden h-9 w-9 items-center justify-center rounded-xl bg-brand-600 md:flex">
+            <i class="ri-stack-fill text-lg text-black"></i>
+          </span>
+          <span class="text-base font-bold text-white md:text-lg">Stackly</span>
+        </a>
+        <nav class="hidden items-center gap-7 md:flex">
+          <a href="#features" class="text-sm font-medium text-zinc-400 transition hover:text-white">Features</a>
+          <a href="#showcase" class="text-sm font-medium text-zinc-400 transition hover:text-white">Showcase</a>
+          <a href="#blog" class="text-sm font-medium text-zinc-400 transition hover:text-white">Blog</a>
+        </nav>
+        <button
+          class="btn-fill-up btn-fill-up--brand inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-2 text-xs font-semibold md:gap-2 md:px-4 md:py-2.5 md:text-sm"
+          type="button"
+        >
+          <i class="ri-download-2-fill text-sm md:text-base"></i>
+          <span class="btn-fill-lbl">Download</span>
+        </button>
+      </header>
+
+      <!-- 2) Hero Section -->
+      <section
+        id="hero-section"
+        class="reveal-intro relative z-10 overflow-hidden rounded-3xl bg-brand-600"
+      >
+        <div class="relative z-10 flex h-full flex-col items-center gap-6 px-7 pb-0 pt-4 md:flex-row md:items-center md:justify-between md:gap-7 md:px-10 md:pb-0 md:pt-6">
+
+          <!-- Left: Text content -->
+          <div class="flex-1 w-full min-w-0 text-black max-md:pt-6 max-md:text-center md:w-auto md:pt-0 md:text-left">
+            <span class="hero-intro-el inline-flex items-center gap-1.5 rounded-lg bg-black px-3 py-1 text-xs font-semibold text-white">
+              <i class="ri-sparkling-2-fill text-sm"></i>
+              VERSION 2.0 OUT NOW
+            </span>
+            <h1 class="hero-intro-el mt-4 text-3xl font-bold max-md:leading-tight md:text-5xl md:leading-[1.18]">
+              Run your day<br class="hidden md:block" />
+              like a real pro.
+            </h1>
+            <p class="hero-intro-el mt-4 max-w-lg text-sm max-md:leading-snug text-black/75 max-md:mx-auto md:text-base md:leading-relaxed">
+              Stackly bundles tasks, projects, and team chat into one
+              ridiculously fast mobile app — so you can stop juggling tabs
+              and start shipping things that matter.
+            </p>
+            <div class="hero-intro-el mt-6 flex flex-wrap gap-3 max-md:justify-center md:justify-start">
+              <button
+                class="btn-fill-up btn-fill-up--dark inline-flex items-center gap-2 rounded-lg bg-black px-5 py-2.5 text-sm font-semibold"
+                type="button"
+              >
+                <i class="ri-apple-fill text-base"></i>
+                <span class="btn-fill-lbl">App Store</span>
+              </button>
+              <button
+                class="btn-fill-up btn-fill-up--light inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold"
+                type="button"
+              >
+                <i class="ri-google-play-fill text-base"></i>
+                <span class="btn-fill-lbl">Google Play</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Mobile mockup (임베드) -->
+          <div class="hero-mockup-wrap -mb-4 md:-mb-6 flex h-full max-md:min-h-0 max-md:flex-1 max-md:shrink flex-shrink-0 items-start justify-center self-stretch overflow-hidden pt-0 lg:pt-10">
+            <div class="hero-mockup is-pre relative" style="width:360px; height:720px;">
+              <div class="absolute inset-0 rounded-[60px] bg-zinc-800"></div>
+              <div class="absolute -left-[4px] top-36 h-12 w-[4px] rounded-l-full bg-zinc-700"></div>
+              <div class="absolute -left-[4px] top-[216px] h-[72px] w-[4px] rounded-l-full bg-zinc-700"></div>
+              <div class="absolute -right-[4px] top-[168px] h-24 w-[4px] rounded-r-full bg-zinc-700"></div>
+              <div class="absolute inset-[9px] overflow-hidden rounded-[51px] bg-zinc-950">
+                <iframe
+                  src="app.html"
+                  title="App Preview"
+                  class="h-full w-full"
+                  scrolling="no"
+                ></iframe>
+              </div>
+              <div class="absolute bottom-[15px] left-1/2 h-1.5 w-[120px] -translate-x-1/2 rounded-full bg-white/20"></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <div class="mt-10 flex flex-col gap-16 md:mt-12 md:gap-24 lg:gap-28">
+
+      <!-- 3) Three Feature Cards -->
+      <section id="features" class="grid grid-cols-1 gap-6 md:grid-cols-3">
+
+        <article class="feature-intro-el rounded-3xl bg-zinc-900 p-7 md:p-8">
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/20 text-brand-300">
+            <i class="ri-flashlight-fill text-2xl"></i>
+          </span>
+          <h3 class="mt-5 text-xl font-bold leading-tight text-white">Lightning fast</h3>
+          <p class="mt-3 text-sm text-zinc-400 md:text-[15px]">
+            Native rendering, smart caching, and 60fps animations.
+            Open the app — your data is already there.
+          </p>
+          <div class="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-300">
+            <span>Boot in 0.4s</span>
+            <i class="ri-arrow-right-up-line"></i>
+          </div>
+        </article>
+
+        <article class="feature-intro-el rounded-3xl bg-zinc-900 p-7 md:p-8">
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/20 text-brand-300">
+            <i class="ri-shield-check-fill text-2xl"></i>
+          </span>
+          <h3 class="mt-5 text-xl font-bold leading-tight text-white">Private by default</h3>
+          <p class="mt-3 text-sm text-zinc-400 md:text-[15px]">
+            End-to-end encryption on every note, task, and chat.
+            Your data lives on your device — not on a server.
+          </p>
+          <div class="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-300">
+            <span>Zero-knowledge</span>
+            <i class="ri-arrow-right-up-line"></i>
+          </div>
+        </article>
+
+        <article class="feature-intro-el rounded-3xl bg-zinc-900 p-7 md:p-8">
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/20 text-brand-300">
+            <i class="ri-team-fill text-2xl"></i>
+          </span>
+          <h3 class="mt-5 text-xl font-bold leading-tight text-white">Built for teams</h3>
+          <p class="mt-3 text-sm text-zinc-400 md:text-[15px]">
+            Real-time collaboration, threaded comments, and
+            granular roles. Onboard a teammate in under a minute.
+          </p>
+          <div class="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-300">
+            <span>Up to 50 seats</span>
+            <i class="ri-arrow-right-up-line"></i>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- 4) Bento: App intro title + FLAGSHIP / stacked panels -->
+      <section id="showcase" class="scroll-reveal flex flex-col gap-10 md:gap-12">
+        <header class="text-center" aria-labelledby="showcase-intro-heading">
+          <span class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500/20 px-3 py-1 text-xs font-semibold text-brand-300">
+            <i class="ri-layout-grid-fill text-sm"></i>
+            APP INTRODUCTION
+          </span>
+          <h2 id="showcase-intro-heading" class="mt-4 text-2xl font-bold leading-tight text-white md:text-3xl md:leading-snug">
+            From features on paper<br class="hidden sm:block" />
+            to the app in your hand.
+          </h2>
+          <p class="mx-auto mt-4 max-w-2xl px-4 text-sm text-zinc-400 md:text-[15px] md:leading-relaxed">
+            Here's how Stackly looks in the real flows your team touches every day — inbox,
+            insights, and on-device AI — layered into one cohesive experience below.
+          </p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+        <!-- Left: Tall pink banner — mockup larger; overflow clips at banner bottom -->
+        <article class="relative flex max-h-[min(640px,88vh)] min-h-0 flex-col overflow-hidden rounded-3xl bg-brand-600 px-8 pb-0 pt-8 md:max-h-[min(720px,90vh)] md:px-10 md:pt-10 md:pb-0">
+          <div class="shrink-0">
+            <span class="inline-flex items-center gap-1.5 rounded-lg bg-black px-3 py-1 text-xs font-semibold text-white">
+              <i class="ri-rocket-2-fill text-sm"></i>
+              FLAGSHIP
+            </span>
+            <h2 class="mt-4 text-2xl font-bold leading-tight text-black md:text-3xl">
+              One inbox<br />
+              for everything.
+            </h2>
+            <p class="mt-4 max-w-md text-sm text-black/75 md:text-base">
+              Email, Slack, Linear, Notion — Stackly funnels every
+              notification into one quiet, actionable feed. No more
+              tab roulette at 2pm.
+            </p>
+          </div>
+
+          <div class="relative mt-8 flex min-h-0 flex-1 flex-col justify-start overflow-hidden">
+            <div class="flex min-h-0 flex-1 justify-center overflow-hidden">
+              <div class="relative mx-auto w-[min(100%,300px)] shrink-0" style="height:560px;">
+                <div class="absolute inset-0 rounded-[44px] bg-zinc-800"></div>
+                <div class="absolute -left-[3px] top-28 h-10 w-[4px] rounded-l-full bg-zinc-700"></div>
+                <div class="absolute -left-[3px] top-[168px] h-14 w-[4px] rounded-l-full bg-zinc-700"></div>
+                <div class="absolute -right-[3px] top-[132px] h-16 w-[4px] rounded-r-full bg-zinc-700"></div>
+                <div class="absolute inset-[8px] overflow-hidden rounded-[36px] bg-zinc-950">
+                  <iframe
+                    src="app.html"
+                    title="App preview inset"
+                    class="pointer-events-none absolute left-0 top-0 h-[900px] w-full border-0"
+                    scrolling="no"
+                    tabindex="-1"
+                  ></iframe>
+                </div>
+                <div class="pointer-events-none absolute bottom-[14px] left-1/2 h-1.5 w-[110px] -translate-x-1/2 rounded-full bg-white/20"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Right: Two stacked gray banners -->
+        <div class="grid grid-rows-2 gap-6">
+
+          <article class="relative overflow-hidden rounded-3xl bg-white p-7 md:p-8">
+            <div class="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-brand-500/15 blur-3xl"></div>
+            <div class="relative z-10">
+              <span class="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1 text-xs font-semibold text-black">
+                <i class="ri-bar-chart-2-fill text-sm"></i>
+                INSIGHTS
+              </span>
+              <h3 class="mt-4 text-xl font-bold leading-tight text-black md:text-2xl">
+                Daily reports that<br class="hidden md:block" />
+                read themselves.
+              </h3>
+              <p class="mt-3 max-w-md text-sm text-black/65">
+                Stackly turns your activity into a one-page brief every
+                morning. Skip the meeting — read the brief.
+              </p>
+
+              <div class="mt-5 flex items-end gap-2">
+                <div class="h-12 w-6 rounded-md bg-zinc-200"></div>
+                <div class="h-16 w-6 rounded-md bg-zinc-200"></div>
+                <div class="h-10 w-6 rounded-md bg-zinc-200"></div>
+                <div class="h-20 w-6 rounded-md bg-brand-500"></div>
+                <div class="h-14 w-6 rounded-md bg-zinc-200"></div>
+                <div class="h-24 w-6 rounded-md bg-brand-500"></div>
+                <div class="h-16 w-6 rounded-md bg-zinc-200"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="relative overflow-hidden rounded-3xl bg-zinc-900 p-7 md:p-8">
+            <div class="absolute -bottom-16 -right-10 h-44 w-44 rounded-full bg-brand-600/10 blur-3xl"></div>
+            <div class="relative z-10">
+              <span class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500/20 px-3 py-1 text-xs font-semibold text-brand-300">
+                <i class="ri-magic-fill text-sm"></i>
+                AI ASSIST
+              </span>
+              <h3 class="mt-4 text-xl font-bold leading-tight text-white md:text-2xl">
+                Drafts, summaries,<br class="hidden md:block" />
+                and answers — instantly.
+              </h3>
+              <p class="mt-3 max-w-md text-sm text-white/55">
+                Hold the action button to ask anything. Stackly's
+                on-device AI replies in milliseconds, fully offline.
+              </p>
+
+              <div class="mt-5 flex flex-wrap gap-2">
+                <span class="rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300">Summarize thread</span>
+                <span class="rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300">Reply for me</span>
+                <span class="rounded-lg bg-brand-500/20 px-3 py-1.5 text-xs font-semibold text-brand-300">Plan my day</span>
+              </div>
+            </div>
+          </article>
+
+        </div>
+        </div>
+      </section>
+
+      <!-- 5) Blog Grid (12 posts) -->
+      <section id="blog" class="scroll-reveal">
+        <header class="text-center">
+          <span class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500/20 px-3 py-1 text-xs font-semibold text-brand-300">
+            <i class="ri-newspaper-fill text-sm"></i>
+            FROM THE BLOG
+          </span>
+          <h2 class="mt-3 text-2xl font-bold leading-tight text-white md:text-3xl">
+            Notes from the build log.
+          </h2>
+          <a href="#" class="mt-5 inline-flex items-center justify-center gap-1.5 text-sm font-semibold text-brand-300 transition hover:text-brand-100">
+            View all posts
+            <i class="ri-arrow-right-line"></i>
+          </a>
+        </header>
+
+        <div
+          id="blog-posts-root"
+          class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4"
+          aria-busy="true"
+          aria-live="polite"
+        >
+          <div id="blog-skeleton" class="contents">
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-24 rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-[4.5rem] rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-14 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[95%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-4/5 max-w-[85%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[92%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-28 rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-16 rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-12 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[90%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-3/4 max-w-[70%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[88%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-20 rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-20 rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-[3.25rem] rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[92%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-5/6 max-w-[78%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[94%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-[5.5rem] rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-[4rem] rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-14 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[88%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-2/3 max-w-[65%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[90%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-24 rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-[4.5rem] rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-16 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[96%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-4/5 max-w-[82%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[91%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-[6.5rem] rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-20 rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-12 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[93%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-3/4 max-w-[72%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[89%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-20 rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-[4.25rem] rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-14 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[91%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-5/6 max-w-[76%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[93%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-16 rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-16 rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-[3.5rem] rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[94%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-4/5 max-w-[68%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[87%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-[7rem] rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-20 rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-12 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[89%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-2/3 max-w-[74%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[95%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-24 rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-[4.5rem] rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-16 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[97%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-4/5 max-w-[80%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[92%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-[5.25rem] rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-16 rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-14 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[90%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-3/4 max-w-[66%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[88%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+            <div class="blog-skeleton-item flex min-h-[220px] flex-col rounded-3xl bg-zinc-900 p-6 md:min-h-[236px] md:p-7">
+              <div class="h-5 w-28 rounded-lg bg-zinc-800 animate-pulse"></div>
+              <div class="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                <div class="h-3 w-[4rem] rounded bg-zinc-800 animate-pulse"></div>
+                <div class="h-3 w-12 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+              <div class="mt-3 h-4 w-full max-w-[95%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2 h-4 w-5/6 max-w-[77%] rounded bg-zinc-800 animate-pulse"></div>
+              <div class="mt-2.5 min-h-0 flex-1 space-y-2">
+                <div class="h-3 w-full rounded bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-3 w-[90%] rounded bg-zinc-800/90 animate-pulse"></div>
+              </div>
+              <div class="mt-5 flex justify-end">
+                <div class="h-5 w-5 rounded bg-zinc-800 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6) Download CTA Banner -->
+      <section class="scroll-reveal relative overflow-hidden rounded-3xl bg-[#3a2b36] p-8 md:p-12">
+        <div class="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-500/10 blur-3xl"></div>
+        <div class="absolute -bottom-24 right-10 h-48 w-48 rounded-full bg-brand-600/10 blur-3xl"></div>
+        <div class="relative z-10 flex flex-col items-center gap-10 text-center">
+          <div class="mx-auto flex max-w-2xl flex-col items-center px-2">
+            <span class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500/20 px-3 py-1 text-xs font-semibold text-brand-300">
+              <i class="ri-download-cloud-2-fill text-sm"></i>
+              GET STACKLY
+            </span>
+            <h2 class="mt-4 text-2xl font-bold max-md:leading-tight text-white md:text-4xl md:leading-[1.15]">
+              Your day, finally on rails.<br class="hidden md:block" />
+              Try Stackly free for 14 days.
+            </h2>
+            <p class="mt-4 text-sm max-md:leading-snug text-white/55 md:text-base md:leading-relaxed">
+              Available on iOS, Android, and the web. No credit card,
+              no setup wizard — install and go.
+            </p>
+          </div>
+          <div class="flex w-full max-w-md flex-col gap-3 sm:max-w-xl sm:flex-row sm:justify-center sm:gap-4">
+            <button
+              class="btn-fill-up btn-fill-up--brand inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold sm:flex-initial"
+              type="button"
+            >
+              <i class="ri-apple-fill text-lg"></i>
+              <span class="btn-fill-lbl">Download for iOS</span>
+            </button>
+            <button
+              class="btn-fill-up btn-fill-up--light inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold sm:flex-initial"
+              type="button"
+            >
+              <i class="ri-google-play-fill text-lg"></i>
+              <span class="btn-fill-lbl">Download for Android</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7) Footer -->
+      <footer class="scroll-reveal rounded-3xl bg-zinc-900 p-7 md:p-10">
+        <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+
+          <div class="col-span-2 md:col-span-1">
+            <a href="#" class="flex items-center gap-2.5">
+              <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600">
+                <i class="ri-stack-fill text-lg text-black"></i>
+              </span>
+              <span class="text-base font-bold text-white">Stackly</span>
+            </a>
+            <p class="mt-4 max-w-xs text-sm text-zinc-500">
+              The quiet productivity app for teams that ship.
+            </p>
+            <div class="mt-5 flex items-center gap-2">
+              <a href="#" class="btn-fill-up btn-fill-up--icon-brand flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-800">
+                <i class="ri-twitter-x-fill"></i>
+              </a>
+              <a href="#" class="btn-fill-up btn-fill-up--icon-brand flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-800">
+                <i class="ri-github-fill"></i>
+              </a>
+              <a href="#" class="btn-fill-up btn-fill-up--icon-brand flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-800">
+                <i class="ri-instagram-fill"></i>
+              </a>
+              <a href="#" class="btn-fill-up btn-fill-up--icon-brand flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-800">
+                <i class="ri-discord-fill"></i>
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <h5 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Product</h5>
+            <ul class="mt-4 space-y-2.5 text-sm">
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Features</a></li>
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Pricing</a></li>
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Changelog</a></li>
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Roadmap</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h5 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Company</h5>
+            <ul class="mt-4 space-y-2.5 text-sm">
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">About</a></li>
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Blog</a></li>
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Careers</a></li>
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Press kit</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h5 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Resources</h5>
+            <ul class="mt-4 space-y-2.5 text-sm">
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Help center</a></li>
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Community</a></li>
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Privacy</a></li>
+              <li><a href="#" class="text-zinc-500 transition hover:text-white">Terms</a></li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div class="mt-10 flex flex-col items-start justify-between gap-3 text-xs text-zinc-600 md:flex-row md:items-center">
+          <p>© 2026 Stackly Labs. All rights reserved.</p>
+          <p>Made with <i class="ri-heart-fill text-brand-500"></i> in Seoul · Lisbon · NYC</p>
+        </div>
+      </footer>
+
+      </div>
+
+    </main>
+
+    <!-- Blog article detail modal -->
+    <div
+      id="blog-post-modal"
+      class="fixed inset-0 z-[100] hidden items-center justify-center p-4 md:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="blog-modal-title"
+      aria-hidden="true"
+    >
+      <button
+        type="button"
+        id="blog-post-modal-backdrop"
+        class="absolute inset-0 bg-black/75"
+        aria-label="Close article"
+      ></button>
+      <div
+        class="relative z-10 flex max-h-[min(90dvh,52rem)] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-zinc-900"
+      >
+        <div class="flex shrink-0 items-start justify-between gap-4 p-6 md:p-8 md:pb-5">
+          <div class="min-w-0 flex-1 space-y-3">
+            <span
+              id="blog-modal-category"
+              class="inline-flex w-fit items-center rounded-lg bg-white/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-200"
+            ></span>
+            <div
+              id="blog-modal-meta"
+              class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] font-medium tabular-nums tracking-wide text-zinc-500"
+            ></div>
+            <h3
+              id="blog-modal-title"
+              class="text-lg font-bold leading-snug tracking-tight text-white md:text-xl"
+            ></h3>
+          </div>
+          <button
+            type="button"
+            id="blog-post-modal-close"
+            class="btn-fill-up btn-fill-up--icon-light inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-800"
+            aria-label="Close"
+          >
+            <i class="ri-close-line text-xl" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div
+          id="blog-modal-scroll"
+          class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-6 md:px-8 md:pb-8"
+        >
+          <div id="blog-modal-body" class="space-y-4 text-sm leading-relaxed text-zinc-300"></div>
+          <div id="blog-modal-footer" class="mt-8 space-y-6">
+            <div id="blog-modal-external-wrap" class="hidden"></div>
+            <div>
+              <p class="mb-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                Share
+              </p>
+              <div id="blog-modal-share-row" class="flex flex-wrap gap-2"></div>
+              <p
+                id="blog-modal-copy-feedback"
+                class="mt-2 hidden text-xs text-emerald-400/90"
+                role="status"
+                aria-live="polite"
+              ></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var el = document.getElementById('site-header');
+        if (!el) return;
+        var threshold = 24;
+        function sync() {
+          var y = window.scrollY || document.documentElement.scrollTop;
+          el.classList.toggle('is-scrolled', y > threshold);
+        }
+        sync();
+        window.addEventListener('scroll', sync, { passive: true });
+      })();
+
+      (function () {
+        var overlay = document.getElementById('splash-overlay');
+        if (!overlay) return;
+        var splashStorageKey = 'stackly:splash-shown:v1';
+
+        var reduced =
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function dispatchDone() {
+          window.__stacklySplashDone = true;
+          window.dispatchEvent(new CustomEvent('splash:done'));
+        }
+
+        var hasSeenSplash = false;
+        try {
+          hasSeenSplash = window.localStorage.getItem(splashStorageKey) === '1';
+        } catch (e) {}
+
+        if (hasSeenSplash) {
+          overlay.classList.add('is-fading', 'is-done');
+          dispatchDone();
+          return;
+        }
+
+        // 첫 진입에서만 스플래시를 재생하고, 이후 방문에서는 스킵한다.
+        try {
+          window.localStorage.setItem(splashStorageKey, '1');
+        } catch (e) {}
+
+        if (reduced) {
+          overlay.classList.add('is-fading', 'is-done');
+          dispatchDone();
+          return;
+        }
+
+        var wrap = overlay.querySelector('.splash-logo-wrap');
+        var square = overlay.querySelector('.splash-square');
+        var stackLayers = overlay.querySelectorAll('.splash-stack-layer');
+        var letters = overlay.querySelectorAll('.splash-text > span');
+
+        // 스플래시 동안 페이지 스크롤 잠금
+        var prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        function after(ms, fn) {
+          return window.setTimeout(fn, ms);
+        }
+
+        // 1) 핑크 사각형 등장
+        after(180, function () {
+          if (square) square.classList.add('is-in');
+        });
+
+        // 2) 스택 로고 레이어 — 아래에서 위로 하나씩
+        var layerList = Array.prototype.slice.call(stackLayers).sort(function (a, b) {
+          return Number(a.getAttribute('data-order')) - Number(b.getAttribute('data-order'));
+        });
+        var layerStart = 700;
+        var layerStep = 150;
+        layerList.forEach(function (d, i) {
+          after(layerStart + i * layerStep, function () {
+            d.classList.add('is-in');
+          });
+        });
+
+        // 3) 글자 — 왼쪽에서 오른쪽으로 하나씩
+        var letterStart = layerStart + layerStep * layerList.length + 150;
+        var letterStep = 60;
+        letters.forEach(function (l, i) {
+          after(letterStart + i * letterStep, function () {
+            l.classList.add('is-in');
+          });
+        });
+
+        // 4) 헤더 로고 위치로 모핑 + 검정 배경 페이드아웃
+        var morphStart = letterStart + letters.length * letterStep + 620;
+        after(morphStart, function () {
+          var headerLogo = document.querySelector('#site-header a');
+          if (!wrap || !headerLogo) {
+            finish();
+            return;
+          }
+
+          var src = wrap.getBoundingClientRect();
+          var dst = headerLogo.getBoundingClientRect();
+          if (!src.width || !src.height || !dst.width || !dst.height) {
+            finish();
+            return;
+          }
+
+          var scale = dst.width / src.width;
+          var dx = dst.left - src.left;
+          var dy = dst.top - src.top;
+
+          wrap.style.transform =
+            'translate3d(' + dx + 'px, ' + dy + 'px, 0) scale(' + scale + ')';
+
+          // 등장 시퀀스가 모핑과 함께 시작되도록 미리 알림
+          dispatchDone();
+
+          // 모핑 도중 검정 배경 서서히 사라짐
+          after(520, function () {
+            overlay.classList.add('is-fading');
+          });
+
+          after(1300, finish);
+        });
+
+        var finished = false;
+        function finish() {
+          if (finished) return;
+          finished = true;
+          overlay.classList.add('is-fading', 'is-done');
+          document.body.style.overflow = prevOverflow;
+          dispatchDone();
+        }
+      })();
+
+      (function () {
+        var reduced =
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        var header = document.getElementById('site-header');
+        var heroSection = document.getElementById('hero-section');
+        var heroEls = document.querySelectorAll('.hero-intro-el');
+        var heroMockup = document.querySelector('.hero-mockup');
+        var featureEls = document.querySelectorAll('.feature-intro-el');
+        var scrollRevealEls = document.querySelectorAll('.scroll-reveal');
+        var splashOverlay = document.getElementById('splash-overlay');
+
+        function reveal(node) {
+          if (node) node.classList.add('is-visible');
+        }
+
+        function showAll() {
+          reveal(header);
+          reveal(heroSection);
+          heroEls.forEach(reveal);
+          reveal(heroMockup);
+          featureEls.forEach(reveal);
+          scrollRevealEls.forEach(reveal);
+        }
+
+        function after(ms, fn) {
+          return window.setTimeout(fn, ms);
+        }
+
+        function runSequence() {
+          if (reduced) {
+            showAll();
+            return;
+          }
+
+          var t = 0;
+
+          reveal(header);
+
+          t = 140;
+          after(t, function () {
+            reveal(heroSection);
+          });
+
+          var heroStart = 300;
+          var heroStep = 170;
+          for (var i = 0; i < heroEls.length; i++) {
+            (function (idx) {
+              after(heroStart + heroStep * idx, function () {
+                reveal(heroEls[idx]);
+              });
+            })(i);
+          }
+
+          var mockupStart = heroStart + heroStep * heroEls.length - 40;
+          after(mockupStart, function () {
+            reveal(heroMockup);
+          });
+
+          var featStart = mockupStart + 360;
+          var featStep = 140;
+          for (var j = 0; j < featureEls.length; j++) {
+            (function (idx) {
+              after(featStart + featStep * idx, function () {
+                reveal(featureEls[idx]);
+              });
+            })(j);
+          }
+
+          if (!('IntersectionObserver' in window)) {
+            scrollRevealEls.forEach(reveal);
+            return;
+          }
+
+          var io = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
+              });
+            },
+            { root: null, rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
+          );
+
+          scrollRevealEls.forEach(function (node) {
+            io.observe(node);
+          });
+        }
+
+        // 스플래시가 끝난 시점에 등장 시퀀스를 시작한다.
+        if (splashOverlay && !reduced && !window.__stacklySplashDone) {
+          var started = false;
+          var trigger = function () {
+            if (started) return;
+            started = true;
+            runSequence();
+          };
+          window.addEventListener('splash:done', trigger, { once: true });
+          // 안전 장치: 7초 안에 splash:done이 안 오면 강제로 시작
+          after(7000, trigger);
+        } else {
+          runSequence();
+        }
+      })();
+    </script>
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
+
+      var supabaseUrl = 'https://wppaljybzhnpjcycoyru.supabase.co';
+      var supabaseAnonKey =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndwcGFsanliemhucGpjeWNveXJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3OTE1OTYsImV4cCI6MjA5MjM2NzU5Nn0.bUlYI77oHkY86vZaZY_WmSoMj7BXplBzKENi-O3blm0';
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function formatPostDate(iso) {
+        if (!iso) return '';
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+
+      function dateIsoDay(iso) {
+        if (!iso) return '';
+        return String(iso).slice(0, 10);
+      }
+
+      var modal = document.getElementById('blog-post-modal');
+      var modalBackdrop = document.getElementById('blog-post-modal-backdrop');
+      var modalClose = document.getElementById('blog-post-modal-close');
+      var modalCategory = document.getElementById('blog-modal-category');
+      var modalMeta = document.getElementById('blog-modal-meta');
+      var modalTitle = document.getElementById('blog-modal-title');
+      var modalBody = document.getElementById('blog-modal-body');
+      var modalExternalWrap = document.getElementById('blog-modal-external-wrap');
+      var modalShareRow = document.getElementById('blog-modal-share-row');
+      var modalCopyFeedback = document.getElementById('blog-modal-copy-feedback');
+      var blogModalLastFocus = null;
+      var blogModalCopyHideTimer = null;
+
+      function paragraphsFromBody(text) {
+        if (text == null || !String(text).trim()) return [];
+        return String(text)
+          .trim()
+          .split(/\n\s*\n/)
+          .map(function (p) {
+            return p.trim();
+          })
+          .filter(Boolean);
+      }
+
+      function onBlogModalKeydown(e) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeBlogModal();
+        }
+      }
+
+      function closeBlogModal() {
+        if (!modal || modal.classList.contains('hidden')) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('overflow-hidden');
+        document.removeEventListener('keydown', onBlogModalKeydown);
+        try {
+          var u = new URL(window.location.href);
+          if (u.searchParams.has('post')) {
+            u.searchParams.delete('post');
+            history.replaceState(null, '', u.pathname + u.search + u.hash);
+          }
+        } catch (err) {}
+        if (blogModalCopyHideTimer) {
+          clearTimeout(blogModalCopyHideTimer);
+          blogModalCopyHideTimer = null;
+        }
+        if (modalCopyFeedback) {
+          modalCopyFeedback.classList.add('hidden');
+          modalCopyFeedback.textContent = '';
+        }
+        if (blogModalLastFocus && typeof blogModalLastFocus.focus === 'function') {
+          blogModalLastFocus.focus({ preventScroll: true });
+        }
+        blogModalLastFocus = null;
+      }
+
+      function getBlogShareUrl(row) {
+        var ext = row.external_url && String(row.external_url).trim();
+        if (ext && /^https?:\/\//i.test(ext)) return ext;
+        try {
+          var u = new URL(window.location.href);
+          u.hash = '';
+          if (row.slug) u.searchParams.set('post', String(row.slug));
+          else u.searchParams.delete('post');
+          return u.toString();
+        } catch (e2) {
+          return window.location.href;
+        }
+      }
+
+      function showCopyFeedback(msg) {
+        if (!modalCopyFeedback) return;
+        modalCopyFeedback.textContent = msg;
+        modalCopyFeedback.classList.remove('hidden');
+        if (blogModalCopyHideTimer) clearTimeout(blogModalCopyHideTimer);
+        blogModalCopyHideTimer = setTimeout(function () {
+          modalCopyFeedback.classList.add('hidden');
+        }, 2200);
+      }
+
+      function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text);
+        }
+        return new Promise(function (resolve, reject) {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            if (document.execCommand('copy')) resolve();
+            else reject(new Error('copy failed'));
+          } catch (e3) {
+            reject(e3);
+          }
+          document.body.removeChild(ta);
+        });
+      }
+
+      function buildShareActions(row) {
+        if (!modalShareRow) return;
+        modalShareRow.textContent = '';
+        var shareUrl = getBlogShareUrl(row);
+        var title = row.title || 'Stackly';
+        var encUrl = encodeURIComponent(shareUrl);
+        var encTitle = encodeURIComponent(title);
+
+        function addIconButton(opts) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className =
+            'btn-fill-up btn-fill-up--icon-light inline-flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800';
+          b.setAttribute('aria-label', opts.label);
+          b.innerHTML = '<i class="' + opts.iconClass + ' text-lg" aria-hidden="true"></i>';
+          b.addEventListener('click', opts.onClick);
+          modalShareRow.appendChild(b);
+          return b;
+        }
+
+        function addIconLink(opts) {
+          var a = document.createElement('a');
+          a.href = opts.href;
+          if (!/^mailto:/i.test(String(opts.href || ''))) {
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+          }
+          a.className =
+            'btn-fill-up btn-fill-up--icon-light inline-flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800';
+          a.setAttribute('aria-label', opts.label);
+          a.innerHTML = '<i class="' + opts.iconClass + ' text-lg" aria-hidden="true"></i>';
+          modalShareRow.appendChild(a);
+        }
+
+        addIconButton({
+          label: 'Copy link',
+          iconClass: 'ri-links-line',
+          onClick: function () {
+            copyTextToClipboard(shareUrl)
+              .then(function () {
+                showCopyFeedback('Link copied to clipboard.');
+              })
+              .catch(function () {
+                showCopyFeedback('Could not copy. Try again.');
+              });
+          }
+        });
+
+        if (typeof navigator.share === 'function') {
+          addIconButton({
+            label: 'Share',
+            iconClass: 'ri-share-forward-line',
+            onClick: function () {
+              navigator
+                .share({ title: title, text: title, url: shareUrl })
+                .catch(function () {});
+            }
+          });
+        }
+
+        addIconLink({
+          label: 'Share on X',
+          href: 'https://twitter.com/intent/tweet?text=' + encTitle + '&url=' + encUrl,
+          iconClass: 'ri-twitter-x-line'
+        });
+
+        addIconLink({
+          label: 'Share on Facebook',
+          href: 'https://www.facebook.com/sharer/sharer.php?u=' + encUrl,
+          iconClass: 'ri-facebook-circle-line'
+        });
+
+        addIconLink({
+          label: 'Share on LinkedIn',
+          href: 'https://www.linkedin.com/sharing/share-offsite/?url=' + encUrl,
+          iconClass: 'ri-linkedin-box-line'
+        });
+
+        addIconLink({
+          label: 'Share by email',
+          href:
+            'mailto:?subject=' + encTitle + '&body=' + encodeURIComponent(shareUrl + '\n\n' + title),
+          iconClass: 'ri-mail-line'
+        });
+      }
+
+      function tryOpenPostFromQuery(rows) {
+        if (!rows || !rows.length) return;
+        try {
+          var slug = new URLSearchParams(window.location.search).get('post');
+          if (!slug) return;
+          var match = rows.find(function (r) {
+            return r.slug === slug;
+          });
+          if (match) openBlogModal(match);
+        } catch (e4) {}
+      }
+
+      function openBlogModal(row) {
+        if (!modal) return;
+        blogModalLastFocus = document.activeElement;
+        modalCategory.textContent = row.category || '';
+        modalTitle.textContent = row.title || '';
+        modalMeta.innerHTML =
+          '<time datetime="' +
+          esc(dateIsoDay(row.published_at)) +
+          '">' +
+          esc(formatPostDate(row.published_at)) +
+          '</time>' +
+          '<span class="text-zinc-600">·</span>' +
+          '<span class="text-zinc-600">' +
+          esc(Number(row.read_minutes) || 0) +
+          ' min read</span>';
+
+        modalBody.textContent = '';
+        var parts = paragraphsFromBody(row.body);
+        if (parts.length) {
+          parts.forEach(function (para) {
+            var pEl = document.createElement('p');
+            pEl.className = 'text-sm leading-relaxed text-zinc-300';
+            pEl.textContent = para;
+            modalBody.appendChild(pEl);
+          });
+        } else {
+          var fallback = document.createElement('p');
+          fallback.className = 'text-sm leading-relaxed text-zinc-300';
+          fallback.textContent = row.excerpt || '';
+          modalBody.appendChild(fallback);
+        }
+
+        var ext = row.external_url && String(row.external_url).trim();
+        if (modalExternalWrap) {
+          if (ext && /^https?:\/\//i.test(ext)) {
+            modalExternalWrap.classList.remove('hidden');
+            modalExternalWrap.innerHTML =
+              '<a href="' +
+              esc(ext) +
+              '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-300 transition hover:text-brand-100">' +
+              'Read original' +
+              '<i class="ri-arrow-right-up-line text-base" aria-hidden="true"></i>' +
+              '</a>';
+          } else {
+            modalExternalWrap.classList.add('hidden');
+            modalExternalWrap.textContent = '';
+          }
+        }
+
+        buildShareActions(row);
+
+        try {
+          var u = new URL(window.location.href);
+          if (row.slug) u.searchParams.set('post', String(row.slug));
+          else u.searchParams.delete('post');
+          history.replaceState(null, '', u.pathname + u.search + u.hash);
+        } catch (e5) {}
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('overflow-hidden');
+        document.addEventListener('keydown', onBlogModalKeydown);
+        var modalScroll = document.getElementById('blog-modal-scroll');
+        if (modalScroll) modalScroll.scrollTop = 0;
+        if (modalClose) modalClose.focus({ preventScroll: true });
+      }
+
+      if (modalBackdrop) modalBackdrop.addEventListener('click', closeBlogModal);
+      if (modalClose) modalClose.addEventListener('click', closeBlogModal);
+
+      function showBlogFeedback(root, text, isError) {
+        root.textContent = '';
+        root.removeAttribute('aria-busy');
+        var p = document.createElement('p');
+        p.className =
+          'col-span-full text-center text-sm ' + (isError ? 'text-red-400/90' : 'text-zinc-500');
+        p.textContent = text;
+        root.appendChild(p);
+      }
+
+      function renderPosts(root, rows) {
+        var frag = document.createDocumentFragment();
+        rows.forEach(function (row) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className =
+            'group flex h-full w-full cursor-pointer flex-col rounded-3xl bg-zinc-900 p-6 text-left text-inherit transition-colors hover:bg-zinc-800 md:p-7';
+          btn.addEventListener('click', function () {
+            openBlogModal(row);
+          });
+          btn.innerHTML =
+            '<span class="inline-flex w-fit items-center rounded-lg bg-white/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-200">' +
+            esc(row.category) +
+            '</span>' +
+            '<div class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] font-medium tabular-nums tracking-wide text-zinc-500">' +
+            '<time datetime="' +
+            esc(dateIsoDay(row.published_at)) +
+            '">' +
+            esc(formatPostDate(row.published_at)) +
+            '</time>' +
+            '<span class="text-zinc-600">·</span>' +
+            '<span class="text-zinc-600">' +
+            esc(Number(row.read_minutes) || 0) +
+            ' min read</span>' +
+            '</div>' +
+            '<h4 class="mt-3 text-[15px] font-bold leading-snug tracking-tight text-white md:text-base">' +
+            esc(row.title) +
+            '</h4>' +
+            '<p class="mt-2.5 min-h-0 flex-1 text-xs leading-relaxed text-zinc-400 line-clamp-2">' +
+            esc(row.excerpt) +
+            '</p>' +
+            '<div class="mt-auto flex justify-end pt-5 text-brand-300 opacity-75 transition-opacity group-hover:opacity-100">' +
+            '<i class="ri-arrow-right-up-line inline-block text-lg transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-[5px] group-hover:-translate-y-[5px] group-focus-visible:translate-x-[5px] group-focus-visible:-translate-y-[5px] motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-hover:translate-y-0 motion-reduce:group-focus-visible:translate-x-0 motion-reduce:group-focus-visible:translate-y-0" aria-hidden="true"></i>' +
+            '</div>';
+          frag.appendChild(btn);
+        });
+        root.textContent = '';
+        root.appendChild(frag);
+        root.removeAttribute('aria-busy');
+      }
+
+      var root = document.getElementById('blog-posts-root');
+      if (root) {
+        var supabase = createClient(supabaseUrl, supabaseAnonKey);
+        var res = await supabase
+          .from('blog_posts')
+          .select('category,published_at,read_minutes,title,excerpt,external_url,body,slug')
+          .eq('published', true)
+          .order('published_at', { ascending: false })
+          .limit(24);
+
+        if (res.error) {
+          showBlogFeedback(
+            root,
+            "Couldn't load posts. Check the database setup.",
+            true
+          );
+        } else if (!res.data || res.data.length === 0) {
+          showBlogFeedback(root, 'No posts yet.', false);
+        } else {
+          renderPosts(root, res.data);
+          tryOpenPostFromQuery(res.data);
+        }
+      }
+    </script>
+    <!-- btn-fill-up 글자·아이콘: Tailwind text-* / Remix ::before 모두 덮음 -->
+    <style id="btn-fill-up-text-colors">
+      .btn-fill-up--brand .btn-fill-lbl,
+      .btn-fill-up--brand i,
+      .btn-fill-up--brand i::before {
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+      }
+      .btn-fill-up--brand:hover .btn-fill-lbl,
+      .btn-fill-up--brand:hover i,
+      .btn-fill-up--brand:hover i::before,
+      .btn-fill-up--brand:focus-visible .btn-fill-lbl,
+      .btn-fill-up--brand:focus-visible i,
+      .btn-fill-up--brand:focus-visible i::before {
+        color: #ff66c4 !important;
+        -webkit-text-fill-color: #ff66c4 !important;
+      }
+      .btn-fill-up--dark .btn-fill-lbl,
+      .btn-fill-up--dark i,
+      .btn-fill-up--dark i::before {
+        color: #fff !important;
+        -webkit-text-fill-color: #fff !important;
+      }
+      .btn-fill-up--dark:hover .btn-fill-lbl,
+      .btn-fill-up--dark:hover i,
+      .btn-fill-up--dark:hover i::before,
+      .btn-fill-up--dark:focus-visible .btn-fill-lbl,
+      .btn-fill-up--dark:focus-visible i,
+      .btn-fill-up--dark:focus-visible i::before {
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+      }
+      .btn-fill-up--light .btn-fill-lbl,
+      .btn-fill-up--light i,
+      .btn-fill-up--light i::before {
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+      }
+      .btn-fill-up--light:hover .btn-fill-lbl,
+      .btn-fill-up--light:hover i,
+      .btn-fill-up--light:hover i::before,
+      .btn-fill-up--light:focus-visible .btn-fill-lbl,
+      .btn-fill-up--light:focus-visible i,
+      .btn-fill-up--light:focus-visible i::before {
+        color: #fff !important;
+        -webkit-text-fill-color: #fff !important;
+      }
+      .btn-fill-up--icon-brand i,
+      .btn-fill-up--icon-brand i::before {
+        color: #a1a1aa !important;
+        -webkit-text-fill-color: #a1a1aa !important;
+      }
+      .btn-fill-up--icon-brand:hover i,
+      .btn-fill-up--icon-brand:hover i::before,
+      .btn-fill-up--icon-brand:focus-visible i,
+      .btn-fill-up--icon-brand:focus-visible i::before {
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+      }
+      .btn-fill-up--icon-light i,
+      .btn-fill-up--icon-light i::before {
+        color: #a1a1aa !important;
+        -webkit-text-fill-color: #a1a1aa !important;
+      }
+      .btn-fill-up--icon-light:hover i,
+      .btn-fill-up--icon-light:hover i::before,
+      .btn-fill-up--icon-light:focus-visible i,
+      .btn-fill-up--icon-light:focus-visible i::before {
+        color: #09090b !important;
+        -webkit-text-fill-color: #09090b !important;
+      }
+    </style>
+  </body>
+</html>
