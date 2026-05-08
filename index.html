@@ -1057,7 +1057,7 @@
       (function () {
         var overlay = document.getElementById('splash-overlay');
         if (!overlay) return;
-        var splashStorageKey = 'stackly:splash-shown:v1';
+        var splashStorageKey = 'stackly:splash-shown:session:v1';
 
         var reduced =
           typeof window.matchMedia === 'function' &&
@@ -1070,7 +1070,7 @@
 
         var hasSeenSplash = false;
         try {
-          hasSeenSplash = window.localStorage.getItem(splashStorageKey) === '1';
+          hasSeenSplash = window.sessionStorage.getItem(splashStorageKey) === '1';
         } catch (e) {}
 
         if (hasSeenSplash) {
@@ -1079,9 +1079,9 @@
           return;
         }
 
-        // 첫 진입에서만 스플래시를 재생하고, 이후 방문에서는 스킵한다.
+        // 현재 브라우저 세션(탭)에서만 1회 재생하고, 새 세션에서는 다시 재생한다.
         try {
-          window.localStorage.setItem(splashStorageKey, '1');
+          window.sessionStorage.setItem(splashStorageKey, '1');
         } catch (e) {}
 
         if (reduced) {
